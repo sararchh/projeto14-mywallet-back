@@ -5,9 +5,7 @@ import mongoConection from './database/mongo.js';
 
 import routes from "./routes/index.js"
 
-
 await mongoConection();
-
 
 const app = express();
 app.use(express.json());
