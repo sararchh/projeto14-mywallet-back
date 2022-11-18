@@ -10,10 +10,12 @@ export default {
             const { userId, value, description } = req.body;
 
             const { authorization } = req.headers;
-            const token = authorization?.replace('Bearer ' + '');
+
+            const token = authorization?.replace('Bearer ', '');
             if (!token) {
                 return res.sendStatus(401);
             }
+
             const session = await dbMongo.collection('sessions').findOne({ token });
             if (!session) {
                 return res.sendStatus(401);
