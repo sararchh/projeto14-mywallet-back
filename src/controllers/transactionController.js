@@ -1,5 +1,6 @@
 import mongoConection from '../database/mongo.js';
 import dayjs from 'dayjs';
+import { ObjectId } from 'mongodb';
 
 let dbMongo = await mongoConection();
 
@@ -9,17 +10,7 @@ export default {
             const { type } = req.query;
             const { userId, value, description } = req.body;
 
-            const { authorization } = req.headers;
-
-            const token = authorization?.replace('Bearer ', '');
-            if (!token) {
-                return res.sendStatus(401);
-            }
-
-            const session = await dbMongo.collection('sessions').findOne({ token });
-            if (!session) {
-                return res.sendStatus(401);
-            }
+            const { session } = res.locals;
 
             const transaction = await dbMongo.collection('transaction').insertOne({
                 userId: session.userId,
@@ -40,15 +31,7 @@ export default {
 
     findTransactions: async (req, res) => {
         try {
-            const { authorization } = req.headers;
-            const token = authorization?.replace('Bearer ' , '');
-            if (!token) {
-                return res.sendStatus(401);
-            }
-            const session = await dbMongo.collection('sessions').findOne({ token });
-            if (!session) {
-                return res.sendStatus(401);
-            }
+            const { session } = res.locals;
 
             const transactions = await dbMongo.collection('transaction').find({ userId: session?.userId }).toArray();
 
@@ -57,4 +40,29 @@ export default {
             return res.send(404);
         }
     },
+
+    delete: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            await dbMongo.collection('transaction').deleteOne({ "_id": ObjectId(id) });
+
+            res.status(200).send({message: 'Deletado com sucesso.'});
+        } catch (error) {
+            res.sendStatus(404);
+        }
+    },
+
+    update: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const obj = req.body;
+
+            await dbMongo.collection('transaction').updateOne({ "_id": ObjectId(id) }, { $set: obj });
+
+            res.status(200).send({message: 'Atualizado com sucesso.'});
+        } catch (error) {
+            res.sendStatus(404);
+        }
+    }
 }
