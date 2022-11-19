@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import mongoConection from '../database/mongo.js';
 import { v4 as uuid } from 'uuid';
+import { ObjectId } from 'mongodb';
 
 let dbMongo = await mongoConection();
 
@@ -64,4 +65,17 @@ export default {
     }
 
   },
+
+  deleteSessionUser: async (req, res) => {
+    try {
+      const { id } = req.params;
+      console.log('id', id);
+
+      await dbMongo.collection('sessions').deleteOne({ userId: ObjectId(id) });
+      res.status(200).send({ message: "Documento apagado com sucesso!" });
+
+    } catch (error) {
+      res.sendStatus(404);
+    }
+  }
 }
