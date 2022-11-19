@@ -69,7 +69,6 @@ export default {
   deleteSessionUser: async (req, res) => {
     try {
       const { id } = req.params;
-      console.log('id', id);
 
       await dbMongo.collection('sessions').deleteOne({ userId: ObjectId(id) });
       res.status(200).send({ message: "Documento apagado com sucesso!" });
